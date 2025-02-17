@@ -1,0 +1,16 @@
+addi X1, X0, 5
+addi X2, X0, 10
+add X3, X1, X2
+sub X4, X3, X1
+mul X5, X4, X1
+div X6, X5, X1
+sw X6, 0(X0)
+lw X7, 0(X0)
+bne X8, X2, Loop
+addi X8, X0, 20
+Loop:
+addi X9, X0, 100
+jal X10, Exit
+sub X9, X9, X9
+Exit:
+
