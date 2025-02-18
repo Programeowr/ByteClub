@@ -13,7 +13,7 @@ class Cores{
         registers.resize(32, 0);
         pc = 0;
         coreID = cid;
-        registers[0] = cid;
+        registers[0] = 0;
     }
     
     void execute(vector<string>& program, vector<int>& memory, int clock){
@@ -95,6 +95,19 @@ class Cores{
                 registers[rd] = registers[rs] + val;
             }
 
+            else if(opcode == "muli"){
+                int rd = stoi(words[1].substr(1));
+                int rs = stoi(words[2].substr(1));
+                int val = stoi(words[3]);
+                
+                if(rd == 0){
+                    cout << "Error : You can't rewrite x0" << endl;
+                    return;
+                }
+                
+                registers[rd] = registers[rs] * val;
+            }
+
             else if(opcode == "lw"){
                 int rd = stoi(words[1].substr(1));
                 int offset = stoi(words[2].substr(0, words[2].find('(')));
@@ -128,10 +141,42 @@ class Cores{
                 }
             }
 
+            else if(opcode == "beq"){
+                int rs1 = stoi(words[1].substr(1));
+                int rs2 = stoi(words[2].substr(1));
+                string label = words[3] + ":";
+
+                if(registers[rs1] == registers[rs2]){
+                    int temp = find(program.begin(), program.end(), label) - program.begin();
+                    i = temp;
+                }
+            }
+
+            else if(opcode == "bge"){
+                int rs1 = stoi(words[1].substr(1));
+                int rs2 = stoi(words[2].substr(1));
+                string label = words[3] + ":";
+
+                if(registers[rs1] >= registers[rs2]){
+                    int temp = find(program.begin(), program.end(), label) - program.begin();
+                    i = temp;
+                }
+            }
+
+            else if(opcode == "ble"){
+                int rs1 = stoi(words[1].substr(1));
+                int rs2 = stoi(words[2].substr(1));
+                string label = words[3] + ":";
+
+                if(registers[rs1] <= registers[rs2]){
+                    int temp = find(program.begin(), program.end(), label) - program.begin();
+                    i = temp;
+                }
+            }
+
             else if(opcode == "jal"){
                 int rl = stoi(words[1].substr(1));
                 string label = words[2] + ":";
-                label.pop_back();
                 
                 if(rl == 0){
                     cout << "Error : You can't rewrite x0" << endl;
@@ -162,7 +207,6 @@ class Cores{
 
             else if(opcode == "j"){
                 string label = words[1] + ":";
-                label.pop_back();
 
                 int temp = find(program.begin(), program.end(), label) - program.begin();
                 i = temp;
@@ -186,18 +230,24 @@ class Cores{
                 registers[rd] = val;
             }
 
-            printRegisters(opcode);
-            pc++;
+            printRegisters(opcode, memory);
+            pc += 4;
             clock++;
         }
     }
 
-    void printRegisters(string opcode){
+    void printRegisters(string opcode, vector<int>& memory){
         cout << "Core - " << coreID << " : " << opcode << endl;
         for(int i = 0; i < 32; i++){
             cout << registers[i] << " ";
         }
         cout << endl;
+
+        for(int i = 150; i < 170; i++){
+            cout << memory[i] << " ";
+        }
+        cout << endl;
+
         return;
     }
 };
@@ -219,9 +269,7 @@ class Simulator{
     void run(){
             for(int i = 0; i < 4; i++){
                 cores[i].execute(program, memory, clock);
-            }
-
-        
+            }    
     }
 
 };
@@ -230,7 +278,7 @@ int main(){
 
     Simulator sim;
 
-    ifstream file("Instructions1.txt"); // Open the file
+    ifstream file("Test.txt"); // Open the file
     vector<string> lines;
     string line;
 
@@ -244,29 +292,22 @@ int main(){
     } else {
         cerr << "Error: Could not open the file!" << endl;
     }
-    // sim.program = {"addi X1 X0 5",   // X1 = 5
-    //                 "addi X2, X0, 10",  // X2 = 10
-    //                 "add X3, X1, X2",   // X3 = X1 + X2 = 15
-    //                 "sub X4, X3, X1",   // X4 = X3 - X1 = 10
-    //                 "mul X5, X4, X1",   // X5 = X4 * X1 = 50
-    //                 "div X6, X5, X1",   // X6 = X5 / X1 = 10
-    //                 "sw X6, 0(X0)",     // Store X6 to memory address 0
-    //                 "lw X7, 0(X0)",     // Load memory address 0 into X7
-    //                 "bne X8, X2, Loop",    // If X7 != X2, skip next instruction
-    //                 "addi X8, X0, 20",   // X8 = 0 (skipped if branch taken)
-    //                 "Loop", 
-    //                 "addi X9, X0, 100", // X9 = 100
-    //                 "jal X10, Exit",       // Jump to the end of the program
-    //                 "sub X9, X9, X9" // X9 = 0 (should be skipped by JAL);
-    //                 "Exit"};
 
     sim.program = lines;
 
-    sim.memory[0] = 2;
-    sim.memory[1] = 2;
-    sim.memory[2] = 2;
-
+    sim.memory[150] = 5;
+    sim.memory[151] = 4;
+    sim.memory[152] = 2;
+    sim.memory[153] = 6;
+    sim.memory[154] = 1;
+    sim.memory[155] = 3;
+    sim.memory[156] = 8;
+    sim.memory[157] = 7;
+    sim.memory[158] = 10;
+    sim.memory[159] = 9;
+    
     cout << endl;
     sim.run();
 
+    
 }
