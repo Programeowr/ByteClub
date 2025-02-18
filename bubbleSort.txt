@@ -1,0 +1,23 @@
+li x20 600
+li x10 -1
+li x11 9
+outerLoop:
+addi x10 x10 1
+beq x10 x11 exit
+li x12 0
+sub x13 x11 x10
+innerLoop:
+beq x12 x13 outerLoop
+muli x15 x12 4
+add x30 x20 x15
+lw x25 0(x30)
+lw x26 4(x30)
+bge x25 x26 swap
+addi x12 x12 1
+j innerLoop
+swap:
+addi x12 x12 1
+sw x25 4(x30)
+sw x26 0(x30)
+j innerLoop
+exit
