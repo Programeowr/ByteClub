@@ -19,6 +19,7 @@ Decisions:
 - Separated the memory into 4 different parts
   
 Date: 17-Feb-2025
+
 Members: V Sai Akhil, E Rishikesh Reddy
 
 Decisions:
