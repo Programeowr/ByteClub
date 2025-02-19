@@ -31,6 +31,10 @@ class Cores{
 
             string opcode = words[0];
 
+            if(opcode == ".data"){
+                i = executeData(opcode, i+1, program, memory);
+            }
+
             if(opcode == "add"){
                 int rd = stoi(words[1].substr(1));
                 int rs1 = stoi(words[2].substr(1));
@@ -107,6 +111,13 @@ class Cores{
                 }
                 
                 registers[rd] = registers[rs] * val;
+            }
+
+            else if(opcode == "la"){
+                int rd = stoi(words[1].substr(1));
+                string variable = words[2];
+
+                registers[rd] = mp[variable].first * 4;
             }
 
             else if(opcode == "lw"){
@@ -248,6 +259,39 @@ class Cores{
         }
     }
 
+    int executeData(string opcode, int i, vector<string>& program, vector<int>& memory){
+        int index = 0;
+        int it;
+        for(it = i; it != find(program.begin(), program.end(), ".text") - program.begin(); it++){
+            vector<string> words;
+            istringstream ss(program[it]);
+            string word;
+
+            while(ss >> word){
+                words.push_back(word);
+            }
+
+            string label = words[0];
+            label.pop_back();
+
+            string variable = words[1];
+            variable.erase(variable.begin());
+
+            int temp = index;
+
+            if(variable == "word"){
+                for(int j = 2; j < words.size(); j++){
+                    int val = stoi(words[j].substr(2));
+                    memory[index + 256*coreID] = val;
+                    index++;
+                }
+            }
+
+            mp[label] = make_pair(temp, index);
+        }
+        return it;
+    }
+
     void printRegisters(string opcode, vector<int>& memory){
         cout << "Core - " << coreID << " : " << opcode << endl;
         for(int i = 0; i < 32; i++){
@@ -297,7 +341,7 @@ int main(){
 
     Simulator sim;
 
-    ifstream file("BubbleSort.txt"); // Open the file
+    ifstream file("bubbleSort.txt"); // Open the file
     vector<string> lines;
     string line;
 

@@ -1,6 +1,9 @@
-li x20 600
+.data
+base: .word 0x10 0x11 0x09 0x08 0x12
+.text
+la x20 base
 li x10 -1
-li x11 9
+li x11 4
 outerLoop:
 addi x10 x10 1
 beq x10 x11 exit
