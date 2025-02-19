@@ -6,7 +6,7 @@ Decisions:
 - Added ".data" instructions
 - Added "la" instruction
 - Updated ReadME.md
-- Finished the project
+- Finished the project(phase 1)
 
 Date: 18-Feb-2025
 
