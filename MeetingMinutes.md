@@ -17,10 +17,8 @@ Decisions:
 - Decided to add ".data" instructions 
 - Decided to add "la" instruction 
 - Separated the memory into 4 different parts
-- 
-
+  
 Date: 17-Feb-2025
-
 Members: V Sai Akhil, E Rishikesh Reddy
 
 Decisions:
