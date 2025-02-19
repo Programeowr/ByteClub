@@ -8,6 +8,7 @@ class Cores{
     vector<int> registers;
     int pc;
     int coreID;
+    unordered_map<string, pair<int,int>> mp;
 
     Cores(int cid){
         registers.resize(32, 0);
@@ -16,7 +17,7 @@ class Cores{
         registers[0] = 0;
     }
     
-    void execute(vector<string>& program, vector<int>& memory, int clock){
+    void execute(vector<string>& program, vector<int>& memory, int& clock){
         for(int i = 0; i < program.size(); i++){
             vector<string> words;
             istringstream ss(program[i]);
@@ -118,16 +119,19 @@ class Cores{
                     return;
                 }
                 
-                int address = registers[rs] + offset;
-                registers[rd] = memory[address / 4];
+                int off = (registers[rs] + offset);
+                int address = off / 4 + 256 * coreID;
+                registers[rd] = memory[address];
             }
 
             else if(opcode == "sw"){
                 int rs = stoi(words[1].substr(1));
                 int offset = stoi(words[2].substr(0, words[2].find('(')));
                 int rd = stoi(words[2].substr(words[2].find('(') + 2, words[2].find(')') - words[2].find('(') - 2));
-                int address = registers[rd] + offset;
-                memory[address / 4] = registers[rs];
+
+                int off = registers[rd] + offset;
+                int address = off / 4 + 256 * coreID;
+                memory[address] = registers[rs];
             }
 
             else if(opcode == "bne"){
@@ -138,6 +142,7 @@ class Cores{
                 if(registers[rs1] != registers[rs2]){
                     int temp = find(program.begin(), program.end(), label) - program.begin();
                     i = temp;
+                    pc = 4*i;
                 }
             }
 
@@ -149,6 +154,7 @@ class Cores{
                 if(registers[rs1] == registers[rs2]){
                     int temp = find(program.begin(), program.end(), label) - program.begin();
                     i = temp;
+                    pc = 4*i;
                 }
             }
 
@@ -160,6 +166,7 @@ class Cores{
                 if(registers[rs1] >= registers[rs2]){
                     int temp = find(program.begin(), program.end(), label) - program.begin();
                     i = temp;
+                    pc = 4*i;
                 }
             }
 
@@ -171,6 +178,7 @@ class Cores{
                 if(registers[rs1] <= registers[rs2]){
                     int temp = find(program.begin(), program.end(), label) - program.begin();
                     i = temp;
+                    pc = 4*i;
                 }
             }
 
@@ -184,9 +192,10 @@ class Cores{
                 }
                 
 
-                registers[rl] = i;
+                registers[rl] = pc;
                 int temp = find(program.begin(), program.end(), label) - program.begin();
                 i = temp;
+                pc = 4*i;
             }
 
             else if(opcode == "jalr"){
@@ -201,8 +210,9 @@ class Cores{
                 
                 
                 int address = offset + rj;
-                registers[rl] = i;
-                i = registers[address]; 
+                registers[rl] = pc;
+                i = registers[address];
+                pc = 4*i; 
             }
 
             else if(opcode == "j"){
@@ -210,12 +220,14 @@ class Cores{
 
                 int temp = find(program.begin(), program.end(), label) - program.begin();
                 i = temp;
+                pc = 4*i;
             }
 
             else if(opcode == "jr"){
                 int r = stoi(words[1].substr(1));
 
                 i = registers[r];
+                pc = 4*i;
             }
 
             else if(opcode == "li"){
@@ -243,9 +255,14 @@ class Cores{
         }
         cout << endl;
 
-        for(int i = 150; i < 170; i++){
-            cout << memory[i] << " ";
-        }
+        return;
+    }
+
+    void printMemory(vector<int>& memory){
+        cout << "Core : " << coreID << " : Memory : " << endl;
+        for(int i = 0; i < 256; i++){
+            cout << memory[i + 256*coreID] << " ";
+        } 
         cout << endl;
 
         return;
@@ -269,7 +286,9 @@ class Simulator{
     void run(){
             for(int i = 0; i < 4; i++){
                 cores[i].execute(program, memory, clock);
-            }    
+                cores[i].printMemory(memory);
+            }
+            cout << "Clock cycles : " << clock << endl;    
     }
 
 };
@@ -278,33 +297,22 @@ int main(){
 
     Simulator sim;
 
-    ifstream file("Test.txt"); // Open the file
+    ifstream file("BubbleSort.txt"); // Open the file
     vector<string> lines;
     string line;
 
-    if (file.is_open()) {
+    if(file.is_open()){
         cout << "File opened" << endl; // Check if the file opened successfully
-        while (getline(file, line)) {
+        while(getline(file, line)){
             lines.push_back(line);
             cout << line << endl; // Store each line in the vector
         }
         file.close(); // Close the file
-    } else {
+    } else{
         cerr << "Error: Could not open the file!" << endl;
     }
 
     sim.program = lines;
-
-    sim.memory[150] = 5;
-    sim.memory[151] = 4;
-    sim.memory[152] = 2;
-    sim.memory[153] = 6;
-    sim.memory[154] = 1;
-    sim.memory[155] = 3;
-    sim.memory[156] = 8;
-    sim.memory[157] = 7;
-    sim.memory[158] = 10;
-    sim.memory[159] = 9;
     
     cout << endl;
     sim.run();
