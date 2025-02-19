@@ -1,6 +1,7 @@
 Date: 19-Feb-2025
 
 Members: V Sai Akhil, E Rishikesh Reddy
+
 Decisions:
 - Added ".data" instructions
 - Added "la" instruction
@@ -8,7 +9,9 @@ Decisions:
 - Finished the project
 
 Date: 18-Feb-2025
+
 Members: V Sai Akhil, E Rishikesh Reddy
+
 Decisions:
 - Finished writing the bubble sort in assembly language
 - Decided to add ".data" instructions 
@@ -17,7 +20,9 @@ Decisions:
 - 
 
 Date: 17-Feb-2025
+
 Members: V Sai Akhil, E Rishikesh Reddy
+
 Decisions:
 - Added the left over instructions
 - Made GitHub Repository 
@@ -25,7 +30,9 @@ Decisions:
 - Decided to finish writing bubble sort by 18-Feb-2025
 
 Date: 15-Feb-2025
+
 Members: V Sai Akhil, E Rishikesh Reddy
+
 Decisions:
 - Started coding the simulator
 - Added all the basic instructions (add, sub, mul, div, lw, sw)
@@ -35,7 +42,9 @@ Decisions:
 
 
 Date: 10-Feb-2025
+
 Members: V Sai Akhil, E Rishikesh Reddy
+
 Decisions: 
 - Decided to use C++ language for the project
 - Learned the assembly instructions
