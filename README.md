@@ -11,6 +11,7 @@ Our project is based on simulator which contains four processors. It simulates a
 
 ## Features
 - Can execute basic assembly instructions
+  
 	a. add, sub, mul, div (arithmetic)
 
 	b. addi (immediate values)
