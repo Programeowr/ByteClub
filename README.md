@@ -30,6 +30,7 @@ Our project is based on simulator which contains four processors. It simulates a
 	f. la (load address for variables)
 - Contains four cores which share 4KB memory among themselves
 - Can execute .data instructions to store data in memory
+- Special registers (x31) containing coreID.
 
 ## Limitations
 - Cannot find syntax error
