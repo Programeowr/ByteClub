@@ -25,6 +25,9 @@ class Cores{
             string word;
 
             while(ss >> word){
+                if(word[0] == '#'){
+                    break;
+                }
                 words.push_back(word);
             }
 
@@ -347,7 +350,7 @@ int main(){
 
     Simulator sim;
 
-    ifstream file("Check.txt"); // Open the file
+    ifstream file("bubbleSort.txt"); // Open the file
     vector<string> lines;
     string line;
 
@@ -355,7 +358,6 @@ int main(){
         cout << "File opened" << endl; // Check if the file opened successfully
         while(getline(file, line)){
             lines.push_back(line);
-            cout << line << endl;
         }
         file.close(); // Close the file
     } else{
