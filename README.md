@@ -4,6 +4,10 @@ Rule 1: You do not talk about ByteClub.
 Rule 2: You DO NOT TALK ABOUT ByleClub.
 
 Risc-V Simulator
+
+## Members
+- V Sai Akhil
+- E Rishikesh Reddy
   
 ## Overview
 Our project is based on simulator which contains four processors. It simulates a multi-core environment where it can execute assembly instructions based on the lines of Ripes.
