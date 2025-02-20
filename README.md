@@ -4,10 +4,15 @@ Rule 1: You do not talk about ByteClub.
 Rule 2: You DO NOT TALK ABOUT ByleClub.
 
 Risc-V Simulator
-
-
+  
 ## Overview
 Our project is based on simulator which contains four processors. It simulates a multi-core environment where it can execute assembly instructions based on the lines of Ripes.
+
+## Getting Started
+- Clone the repository
+- Open simCoa.cpp
+- Run "g++ simCoa.cpp -o simCoa" in terminal
+- Run "./simCoa" in terminal
 
 ## Features
 - Can execute basic assembly instructions
@@ -32,4 +37,4 @@ Our project is based on simulator which contains four processors. It simulates a
 - No empty lines to be added in between the instructions in the assembly code
 
 ## Meeting Minutes
-Refer to MeetingMinutes.md for all the minutes of the meeting for each meeting held.
+Refer to [MeetingMinutes.md](MeetingMinutes.md) for all the minutes of the meeting for each meeting held.
