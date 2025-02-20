@@ -15,6 +15,7 @@ class Cores{
         pc = 0;
         coreID = cid;
         registers[0] = 0;
+        registers[31] = cid;
     }
     
     void execute(vector<string>& program, vector<int>& memory, int& clock){
@@ -25,9 +26,7 @@ class Cores{
 
             while(ss >> word){
                 words.push_back(word);
-                cout << word << " ";
             }
-            cout << endl;
 
             string opcode = words[0];
 
@@ -35,7 +34,7 @@ class Cores{
                 i = executeData(opcode, i+1, program, memory);
             }
 
-            if(opcode == "add"){
+            else if(opcode == "add"){
                 int rd = stoi(words[1].substr(1));
                 int rs1 = stoi(words[2].substr(1));
                 int rs2 = stoi(words[3].substr(1));
@@ -78,6 +77,11 @@ class Cores{
                 int rd = stoi(words[1].substr(1));
                 int rs1 = stoi(words[2].substr(1));
                 int rs2 = stoi(words[3].substr(1));
+
+                if(registers[rs2] == 0){
+                    cout << "Cannot divide by 0" << endl;
+                    return;
+                }
                 
                 if(rd == 0){
                     cout << "Error : You can't rewrite x0" << endl;
@@ -202,7 +206,6 @@ class Cores{
                     return;
                 }
                 
-
                 registers[rl] = pc;
                 int temp = find(program.begin(), program.end(), label) - program.begin();
                 i = temp;
@@ -253,7 +256,6 @@ class Cores{
                 registers[rd] = val;
             }
 
-            printRegisters(opcode, memory);
             pc += 4;
             clock++;
         }
@@ -292,8 +294,8 @@ class Cores{
         return it;
     }
 
-    void printRegisters(string opcode, vector<int>& memory){
-        cout << "Core - " << coreID << " : " << opcode << endl;
+    void printRegisters(){
+        cout << "Core " << coreID << " Registers : " << endl; 
         for(int i = 0; i < 32; i++){
             cout << registers[i] << " ";
         }
@@ -302,15 +304,6 @@ class Cores{
         return;
     }
 
-    void printMemory(vector<int>& memory){
-        cout << "Core : " << coreID << " : Memory : " << endl;
-        for(int i = 0; i < 256; i++){
-            cout << memory[i + 256*coreID] << " ";
-        } 
-        cout << endl;
-
-        return;
-    }
 };
 
 class Simulator{
@@ -330,9 +323,22 @@ class Simulator{
     void run(){
             for(int i = 0; i < 4; i++){
                 cores[i].execute(program, memory, clock);
-                cores[i].printMemory(memory);
+                cores[i].printRegisters();
             }
+            printMemory();
             cout << "Clock cycles : " << clock << endl;    
+    }
+
+    void printMemory(){
+        cout << "Memory : ";
+        for(int i = 0; i < 1024; i++){
+            if(i % 5 == 0)  cout << endl;
+            cout << "Address " << 4*i << " : " << memory[i] << " | ";
+            
+        } 
+        cout << endl;
+
+        return;
     }
 
 };
@@ -341,7 +347,7 @@ int main(){
 
     Simulator sim;
 
-    ifstream file("bubbleSort.txt"); // Open the file
+    ifstream file("Check.txt"); // Open the file
     vector<string> lines;
     string line;
 
@@ -349,7 +355,7 @@ int main(){
         cout << "File opened" << endl; // Check if the file opened successfully
         while(getline(file, line)){
             lines.push_back(line);
-            cout << line << endl; // Store each line in the vector
+            cout << line << endl;
         }
         file.close(); // Close the file
     } else{
@@ -359,7 +365,5 @@ int main(){
     sim.program = lines;
     
     cout << endl;
-    sim.run();
-
-    
+    sim.run();    
 }
