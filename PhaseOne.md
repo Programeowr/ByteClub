@@ -1,25 +1,6 @@
-# ByteClub
-Rule 1: You do not talk about ByteClub.
-
-Rule 2: You DO NOT TALK ABOUT ByteClub.
-
-Risc-V Simulator
-
-## Members
-- V Sai Akhil
-- E Rishikesh Reddy
-  
-## Overview
-Our project is based on simulator which contains four processors. It simulates a multi-core environment where it can execute assembly instructions based on the lines of Ripes.
-
-## Phase 1
-[PhaseOne.md](PhaseOne.md)
-
-## Phase 2
-[PhaseTwo.md](PhaseTwo.md)
-
 ## Getting Started
 - Clone the repository
+- Open phase2 folder
 - Open simCoa.cpp
 - Run "g++ simCoa.cpp -o simCoa" in terminal
 - Run "./simCoa" in terminal
@@ -46,6 +27,3 @@ Our project is based on simulator which contains four processors. It simulates a
 - Cannot find syntax error
 - Can only add .word variables in the .data section
 - No empty lines to be added in between the instructions in the assembly code
-
-## Meeting Minutes
-Refer to [MeetingMinutes.md](MeetingMinutes.md) for all the minutes of the meeting for each meeting held.

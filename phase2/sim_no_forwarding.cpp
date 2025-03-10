@@ -160,11 +160,9 @@ class DisableCores{
 
             auto [opcode, rd, value] = mem_wb.front();
             mem_wb.pop();
-            cout << "WB (" << opcode << ")" << endl;
     
             if(opcode == "sw"){
                 memory[value] = rd;
-                cout << value << memory[value] << endl;
             }
             else{
                 registers[rd] = value;
@@ -179,12 +177,10 @@ class DisableCores{
         if(ex_mem.empty())  return;
             auto [opcode, rd, result] = ex_mem.front();
             ex_mem.pop();
-            cout << "MEM (" << opcode << ")" << endl;
     
             int mem = result;
             if(opcode == "lw"){
                 mem = memory[result / 4];
-                cout << (result/4) << memory[result/4] << endl;
             }
             if(opcode == "sw"){
                 mem = result / 4;
@@ -200,7 +196,6 @@ class DisableCores{
 
             if (!branch.empty()) {
                 auto [opcode, r_rs1, r_rs2, label] = branch.front();
-                cout << "EX (Branch) (" << label << ") count = " << count << endl;
 
                 int i = 0;
 
@@ -283,10 +278,6 @@ class DisableCores{
                     memCompleted = false;
                     writeCompleted = false;
                 }
-
-                
-
-                cout << branchTaken << " Flushed IF & ID, restarted at PC = " << count << endl;
     
                 branch.pop();  // Remove only once
                 return;  // Exit function instead of looping again            
@@ -294,8 +285,6 @@ class DisableCores{
             
     
             auto [opcode, rd, r_rs1, r_rs2] = id_ex.front();
-            
-            cout << "EX (" << opcode << ")" << endl;
             
             int result;
 
@@ -317,11 +306,9 @@ class DisableCores{
             
             if(latencyStall > 1){
                 latencyStall--;
-                cout << "Latencyyy = " << latencyStall << endl;
                 return;
             }
 
-            cout << "Latency = 0" << endl;
             latencyStall = 0;
 
             if(opcode == "add" || opcode == "addi"){
@@ -359,7 +346,6 @@ class DisableCores{
             if_id.pop();
 
             if(checkStall(instruction)){
-                cout << "Stall" << endl;
                 stall = true;
                 return;
             }
@@ -374,7 +360,6 @@ class DisableCores{
             int r_rs2 = -1;
     
             ss >> opcode;
-            cout << "ID (" << opcode << ")" << endl;
     
             if(opcode == "bne" || opcode == "beq" || opcode == "blt" || opcode == "bge"){
                 
@@ -503,6 +488,18 @@ class DisableCores{
 
                 r_rs1 = registers[rs1];
             }
+
+            else if(opcode == "print"){
+                string RD, Label;
+                ss >> RD >> Label;
+
+                rd = stoi(RD.substr(1));
+                rd = registers[rd];
+
+                cout << Label << " " << rd << endl;
+                writeCompleted = true;
+                return;
+            }
             
             else {
                 return;
@@ -579,10 +576,8 @@ class DisableSimulator{
             return;
         }
 
-        cout << "IF" << endl;
         cores[cid].instructionsCount++;
         if(program[index].find(' ') == string::npos){
-            cout << "label found" << endl;
             return;
         }
         cores[cid].if_id.push(program[index]);
@@ -598,6 +593,7 @@ class DisableSimulator{
                 cores[i].clearEverything();
                 while(!cores[i].writeCompleted){
                     cores[i].cycles++;
+                    cout << "Clock Cycle " << cores[i].cycles << endl;
                     cores[i].writeBack(memory);
                     cores[i].memoryStage(memory);
                     cores[i].execute(program, labels, latency);
@@ -633,10 +629,8 @@ class DisableSimulator{
                     temp++;
                     cores[i].count++;
                     _sleep(clock);
-                    cout << "count = " << cores[i].count << endl;
                 }
                 cout << i << " finished" << endl;
-                cores[i].printRegisters();
             }
     }
         

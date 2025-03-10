@@ -148,7 +148,6 @@ class EnableCores{
                             id_ex.push({opcode, result_two, r_rs1, r_rs2});
                             stallDuration = 1;
                             stallCount += 1;
-                            cout << rd_two << " " << result_two << endl;
                             return true;
                         }
 
@@ -156,7 +155,6 @@ class EnableCores{
                             id_ex.push({opcode, rd, r_rs1, result_two});
                             stallDuration = 1;
                             stallCount += 1;
-                            cout << rd_two << " " << result_two << endl;
                             return true;
                         }
 
@@ -165,14 +163,12 @@ class EnableCores{
                             branchStall = true;
                             branchDuration = 2;
                             stallCount += 2;
-                            cout << rd_two << endl;
                             return true;
                         }
 
                         id_ex.push({opcode, rd, result_two, result_two});
                         stallDuration = 1;
                         stallCount += 1;
-                        cout << rd_two << endl;
                         return true;
                     }
                     
@@ -186,7 +182,6 @@ class EnableCores{
                             id_ex.push({opcode, rd, result_two, r_rs2});
                             stallDuration = 1;
                             stallCount += 1;
-                            cout << rd_two << endl;
                             return true;
                         }
 
@@ -202,7 +197,6 @@ class EnableCores{
                             id_ex.push({opcode, rd, r_rs1, result_two});
                             stallDuration = 1;
                             stallCount += 1;
-                            cout << rd_two << endl;
                             return true;
                         }    
                     }
@@ -214,7 +208,6 @@ class EnableCores{
                         if(opcode_three == "lw"){
                             stallDuration = 2;
                             stallCount += 1;
-                            cout << rd_three << endl;
                             return true;
                         }
 
@@ -222,7 +215,6 @@ class EnableCores{
                             id_ex.push({opcode, mem_three, r_rs1, r_rs2});
                             stallDuration = 1;
                             stallCount += 1;
-                            cout << rd_three << endl;
                             return true;
                         }
 
@@ -230,7 +222,6 @@ class EnableCores{
                             id_ex.push({opcode, rd, r_rs1, mem_three});
                             stallDuration = 1;
                             stallCount += 1;
-                            cout << rd_three << endl;
                             return true;
                         }
 
@@ -239,7 +230,6 @@ class EnableCores{
                             branchStall = true;
                             branchDuration = 2;
                             stallCount += 2;
-                            cout << rd_three << endl;
                             if_id.pop();
                             return true;
                         }
@@ -247,7 +237,6 @@ class EnableCores{
                         id_ex.push({opcode, rd, mem_three, mem_three});
                         stallDuration = 1;
                         stallCount += 1;
-                        cout << rd_three << endl;
                         return true;
                     }
 
@@ -255,7 +244,6 @@ class EnableCores{
                         if(opcode_three == "lw"){
                             stallDuration = 2;
                             stallCount += 1;
-                            cout << rd_three << endl;
                             return true;
                         }
 
@@ -267,7 +255,6 @@ class EnableCores{
                             id_ex.push({opcode, rd, mem_three, r_rs2});
                             stallDuration = 1;
                             stallCount += 1;
-                            cout << rd_three << endl;
                             return true;
                         }
 
@@ -278,7 +265,6 @@ class EnableCores{
                         if(opcode_three == "lw"){
                             stallDuration = 2;
                             stallCount += 1;
-                            cout << rd_three << endl;
                             return true;
                         }
                         if(opcode == "bne" || opcode == "beq" || opcode == "blt" || opcode == "bge"){
@@ -289,7 +275,6 @@ class EnableCores{
                             id_ex.push({opcode, rd, r_rs1, mem_three});
                             stallDuration = 1;
                             stallCount += 1;
-                            cout << rd_three << endl;
                             return true;
                         }    
                     }    
@@ -297,7 +282,6 @@ class EnableCores{
 
                 if(branchStall){
                     branch.push({opcode, r_rs1, r_rs2, label});
-                    cout << r_rs1 << " " << r_rs2 << endl;
                     stallCount += 2;
                     if_id.pop();
                     return true;
@@ -314,17 +298,14 @@ class EnableCores{
 
             auto [opcode, rd, value] = mem_wb.front();
             mem_wb.pop();
-            cout << "WB (" << opcode << ")" << endl;
     
             if(opcode == "sw"){
                 memory[value] = rd;
-                cout << value << memory[value] << endl;
             }
             else{
                 registers[rd] = value;
             }
             wb_if.push({opcode, rd});
-            cout << "Register = " << registers[12] << endl;
     }
 
     void memoryStage(vector<int>& memory){
@@ -334,12 +315,10 @@ class EnableCores{
         if(ex_mem.empty())  return;
             auto [opcode, rd, result] = ex_mem.front();
             ex_mem.pop();
-            cout << "MEM (" << opcode << ")" << endl;
-    
+
             int mem = result;
             if(opcode == "lw"){
                 mem = memory[result / 4];
-                cout << (result/4) << memory[result/4] << endl;
             }
             if(opcode == "sw"){
                 mem = result / 4;
@@ -355,7 +334,6 @@ class EnableCores{
 
             if (!branch.empty()) {
                 auto [opcode, r_rs1, r_rs2, label] = branch.front();
-                cout << "EX (Branch) (" << label << ") count = " << count << endl;
 
                 int i = 0;
 
@@ -438,10 +416,6 @@ class EnableCores{
                     memCompleted = false;
                     writeCompleted = false;
                 }
-
-                
-
-                cout << branchTaken << " Flushed IF & ID, restarted at PC = " << count << endl;
     
                 branch.pop();  // Remove only once
                 return;  // Exit function instead of looping again            
@@ -449,8 +423,6 @@ class EnableCores{
             
     
             auto [opcode, rd, r_rs1, r_rs2] = id_ex.front();
-            
-            cout << "EX (" << opcode << ")" << endl;
             
             int result;
 
@@ -472,11 +444,9 @@ class EnableCores{
             
             if(latencyStall > 1){
                 latencyStall--;
-                cout << "Latencyyy = " << latencyStall << endl;
                 return;
             }
 
-            cout << "Latency = 0" << endl;
             latencyStall = 0;
 
             if(opcode == "add" || opcode == "addi"){
@@ -505,7 +475,6 @@ class EnableCores{
             
 
             if(checkStall(instruction)){
-                cout << "Stall" << endl;
                 stall = true;
                 return;
             }
@@ -522,7 +491,6 @@ class EnableCores{
             int r_rs2 = -1;
     
             ss >> opcode;
-            cout << "ID (" << opcode << ")" << endl;
     
             if(opcode == "bne" || opcode == "beq" || opcode == "blt" || opcode == "bge"){
                 
@@ -532,7 +500,6 @@ class EnableCores{
                 ss >> RS1 >> RS2 >> Label;
 
                 if(RS1 == "cid"){
-                    cout << "Here" << endl;
                     cout << RS2 << endl;
                     coreInstruction = true;
                     r_rs1 = coreID;
@@ -653,6 +620,18 @@ class EnableCores{
 
                 r_rs1 = registers[rs1];
             }
+
+            else if(opcode == "print"){
+                string RD, Label;
+                ss >> RD >> Label;
+
+                rd = stoi(RD.substr(1));
+                rd = registers[rd];
+
+                cout << Label << " " << rd << endl;
+                writeCompleted = true;
+                return;
+            }
             
             else {
                 return;
@@ -730,10 +709,8 @@ class EnableSimulator{
             return;
         }
 
-        cout << "IF" << endl;
         cores[cid].instructionsCount++;
         if(program[index].find(' ') == string::npos){
-            cout << "label found" << endl;
             return;
         }
         while(!cores[cid].if_id.empty()){
@@ -753,6 +730,7 @@ class EnableSimulator{
                 cores[i].clearEverything();
                 while(!cores[i].writeCompleted){
                     cores[i].cycles++;
+                    cout << "Clock cycle " << cores[i].cycles << endl;
                     cores[i].writeBack(memory);
                     cores[i].memoryStage(memory);
                     cores[i].execute(program, labels, latency);
@@ -786,10 +764,8 @@ class EnableSimulator{
                     temp++;
                     cores[i].count++;
                     _sleep(clock);
-                    cout << "count = " << cores[i].count << endl;
                 }
                 cout << i << " finished" << endl;
-                cores[i].printRegisters();
             }
     }
         

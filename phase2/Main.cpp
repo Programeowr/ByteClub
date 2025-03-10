@@ -47,6 +47,7 @@ int main(){
     
         for(int i = 0; i < sim.program.size(); i++){
             if(sim.program[i].find(' ') == string::npos){
+                sim.program[i].pop_back();
                 sim.labels[sim.program[i]] = i;
             }
         }
@@ -70,6 +71,7 @@ int main(){
     
         for(int i = 0; i < sim.program.size(); i++){
             if(sim.program[i].find(' ') == string::npos){
+                sim.program[i].pop_back();
                 sim.labels[sim.program[i]] = i;
             }
         }
