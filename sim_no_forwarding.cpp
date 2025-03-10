@@ -40,7 +40,7 @@ class DisableCores{
     int branchDuration = 0;
     int stallCount = 0;
     int instructionsCount = 0;
-    int cycles = 0;
+    int cycles = -1;
 
     DisableCores(int cid){
         registers.resize(32, 0);
@@ -576,6 +576,7 @@ class DisableSimulator{
         }
 
         cout << "IF" << endl;
+        cores[cid].instructionsCount++;
         if(program[index].find(' ') == string::npos){
             cout << "label found" << endl;
             return;
@@ -592,6 +593,7 @@ class DisableSimulator{
                 cores[i].count = index;
                 cores[i].clearEverything();
                 while(!cores[i].writeCompleted){
+                    cores[i].cycles++;
                     cores[i].writeBack(memory);
                     cores[i].memoryStage(memory);
                     cores[i].execute(program, labels, latency);
@@ -697,7 +699,15 @@ class DisableSimulator{
         }
 
         printMemory();
-        cout << "Clock cycles : " << clock << endl;    
+        
+        for(int i = 0; i < 4; i++){
+            cout << "Core " << i << endl;
+            cout << "Clock cycles : " << cores[i].cycles << endl;
+            cout << "Stalls : " << cores[i].stallCount << endl;
+            cout << "Instructions : " << cores[i].instructionsCount << endl;
+            cout << "IPC : " << cores[i].instructionsCount / cores[i].cycles << endl << endl; 
+        }
+
     }
 
     void printMemory(){
