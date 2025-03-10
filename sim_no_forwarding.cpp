@@ -3,7 +3,7 @@
 #include <ctime>
 using namespace std;
 
-class Cores{
+class DisableCores{
     public:
 
     vector<int> registers;
@@ -35,13 +35,14 @@ class Cores{
     bool writeCompleted = false;
 
     int count = 0;
+    int latencyStall = 0;
     int stallDuration = 0;
     int branchDuration = 0;
     int stallCount = 0;
     int instructionsCount = 0;
     int cycles = 0;
 
-    Cores(int cid){
+    DisableCores(int cid){
         registers.resize(32, 0);
         pc = 0;
         coreID = cid;
@@ -49,13 +50,13 @@ class Cores{
         registers[31] = cid;
     }
 
-    Cores(const Cores&) = delete;
-    Cores& operator=(const Cores&) = delete;
+    DisableCores(const DisableCores&) = delete;
+    DisableCores& operator=(const DisableCores&) = delete;
 
-    Cores(Cores&& other) noexcept
+    DisableCores(DisableCores&& other) noexcept
         : coreID(other.coreID), registers(std::move(other.registers)), pc(other.pc) {}
 
-    Cores& operator=(Cores&& other) noexcept {
+    DisableCores& operator=(DisableCores&& other) noexcept {
         if (this != &other) {
             coreID = other.coreID;
             registers = std::move(other.registers);
@@ -194,7 +195,7 @@ class Cores{
             mem_wb.push({opcode, rd, mem});
     }
 
-    void execute(vector<string>& program, unordered_map<string,int>& labels){
+    void execute(vector<string>& program, unordered_map<string,int>& labels, unordered_map<string,int>& latency){
         if(decodeCompleted){
             executeCompleted = true;
         }
@@ -296,10 +297,36 @@ class Cores{
             
     
             auto [opcode, rd, r_rs1, r_rs2] = id_ex.front();
-            id_ex.pop();
+            
             cout << "EX (" << opcode << ")" << endl;
             
             int result;
+
+            if(opcode == "lw"){
+                result = r_rs1 + r_rs2;
+            }
+    
+            else if(opcode == "sw"){
+                result = r_rs1 + r_rs2;
+            }
+
+            else if(opcode == "la" || opcode == "li"){
+                result = r_rs1;
+            }
+
+            if(latencyStall == 0){
+                latencyStall = latency[opcode];
+            }
+            
+            if(latencyStall > 1){
+                latencyStall--;
+                cout << "Latencyyy = " << latencyStall << endl;
+                return;
+            }
+
+            cout << "Latency = 0" << endl;
+            latencyStall = 0;
+
             if(opcode == "add" || opcode == "addi"){
                 result = r_rs1 + r_rs2;
             }
@@ -312,18 +339,7 @@ class Cores{
                 result = r_rs1 * r_rs2;
             }
     
-            else if(opcode == "lw"){
-                result = r_rs1 + r_rs2;
-            }
-    
-            else if(opcode == "sw"){
-                result = r_rs1 + r_rs2;
-            }
-
-            else if(opcode == "la" || opcode == "li"){
-                result = r_rs1;
-            }
-    
+            id_ex.pop();
             ex_mem.push({opcode, rd, result});
     }
 
@@ -522,18 +538,19 @@ class Cores{
     }
 };
 
-class Simulator{
+class DisableSimulator{
     public:
 
     vector<int> memory;
     int clock;
-    vector<Cores> cores;
+    vector<DisableCores> cores;
     vector<string> program;
 
     bool completed = false;
     unordered_map<string, int> labels;
+    unordered_map<string, int> latency;
 
-    Simulator(){
+    DisableSimulator(){
         memory.resize(4096 / 4);
         clock = 0;
         cores.emplace_back(0);
@@ -577,7 +594,12 @@ class Simulator{
                 while(!cores[i].writeCompleted){
                     cores[i].writeBack(memory);
                     cores[i].memoryStage(memory);
-                    cores[i].execute(program, labels);
+                    cores[i].execute(program, labels, latency);
+
+                    if(cores[i].latencyStall > 0){
+                        continue;
+                    }
+
                     cores[i].instructionDecode();
 
                     if(cores[i].stall){
@@ -691,33 +713,3 @@ class Simulator{
     }
 
 };
-
-int main(){
-
-    Simulator sim;
-
-    ifstream file("BubbleSort.txt"); // Open the file
-    vector<string> lines;
-    string line;
-
-    if(file.is_open()){
-        cout << "File opened" << endl; // Check if the file opened successfully
-        while(getline(file, line)){
-            lines.push_back(line);
-        }
-        file.close(); // Close the file
-    } else{
-        cerr << "Error: Could not open the file!" << endl;
-    }
-
-    sim.program = lines;
-    
-    for(int i = 0; i < sim.program.size(); i++){
-        if(sim.program[i].find(' ') == string::npos){
-            sim.labels[sim.program[i]] = i;
-        }
-    }
-
-    cout << endl;
-    sim.run();
-}
