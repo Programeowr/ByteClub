@@ -841,6 +841,8 @@ class EnableSimulator{
             float temp = (float)cores[i].instructionsCount / cores[i].cycles;
             cout << "IPC : " << temp << endl << endl; 
         }
+
+        cout << "Total clock cycles : " << cores[0].cycles + cores[1].cycles + cores[2].cycles + cores[3].cycles << endl; 
     }
 
     void printMemory(){

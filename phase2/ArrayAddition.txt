@@ -10,7 +10,7 @@ addi x26 x0 50
 addi x27 x0 75
 addi x28 x0 100
 addi x5 x0 600
-loopZero:
+loopZero
 bne cid 0 loopOne
 beq x16 x25 loopOne
 lw x15 0(x5)
@@ -21,7 +21,7 @@ add x15 x15 x10
 sw x15 0(x5)
 addi x16 x16 1
 j loopZero
-loopOne:
+loopOne
 bne cid 1 loopTwo
 beq x25 x26 loopTwo
 lw x15 0(x5)
@@ -32,7 +32,7 @@ add x15 x15 x10
 sw x15 0(x5)
 addi x25 x25 1
 j loopOne
-loopTwo:
+loopTwo
 bne cid 2 loopThree
 beq x26 x27 loopThree
 lw x15 0(x5)
@@ -43,7 +43,7 @@ add x15 x15 x10
 sw x15 0(x5)
 addi x26 x26 1
 j loopTwo
-loopThree:
+loopThree
 bne cid 3 done
 beq x27 x28 done
 lw x15 0(x5)
@@ -54,5 +54,5 @@ add x15 x15 x10
 sw x15 0(x5)
 addi x27 x27 1
 j loopThree
-done:
+done
 print x15 Sum
