@@ -8,9 +8,12 @@ int main(){
     char enable;
 
     int add, sub, mul, div;
+    float time;
     cout << "Enable Forwarding? y (or) n" << endl;
     cin >> enable;
 
+    cout << "Provide the length of 1 clock cycle (in ms)" << endl;
+    cin >> time;
     cout << "Provide the latency for the below arithmetic instructions " << endl;
     cout << "add and addi : " << endl;
     cin >> add;
@@ -24,7 +27,7 @@ int main(){
     cout << "div : " << endl;
     cin >> div;
 
-    ifstream file("bubbleSort.txt"); // Open the file
+    ifstream file("ArrayAddition.txt"); // Open the file
     vector<string> lines;
     string line;
 
@@ -48,6 +51,7 @@ int main(){
             }
         }
 
+        sim.clock = time;
         sim.latency["add"] = add;
         sim.latency["addi"] = add;
         sim.latency["sub"] = sub;
@@ -70,6 +74,7 @@ int main(){
             }
         }
 
+        sim.clock = time;
         sim.latency["add"] = add;
         sim.latency["addi"] = add;
         sim.latency["sub"] = sub;

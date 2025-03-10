@@ -16,12 +16,7 @@ class DisableCores{
     queue<tuple<string, int, int>> ex_mem;
     queue<tuple<string, int, int>> mem_wb;
     queue<tuple<string, int>> wb_if;
-
-    vector<pair<string, int>> vecStall; 
     queue<tuple<string, int, int, string>> branch;
-
-    mutex m_if_id, m_id_ex, m_ex_mem, m_mem_wb, m_stall, m_branch_stall, m_registers, m_memory, m_program, m_pc;
-    condition_variable c_if_id, c_id_ex, c_ex_mem, c_mem_wb, c_wb_if, c_stall, c_branch_stall;
 
     bool completed = false;
     bool stall = false;
@@ -109,6 +104,8 @@ class DisableCores{
                 if(opcode == "bne" || opcode == "beq" || opcode == "bge" || opcode == "blt"){
                     string RS1, RS2, Label;
                     ss >> RS1 >> RS2 >> Label;
+
+                    if(RS1 == "cid")    return false;
         
                     rs1 = stoi(RS1.substr(1));
                     rs2 = stoi(RS2.substr(1));
@@ -338,6 +335,15 @@ class DisableCores{
             else if(opcode == "mul" || opcode == "muli"){
                 result = r_rs1 * r_rs2;
             }
+
+            else if(opcode == "div"){
+                if(r_rs2 != 0){
+                    result = r_rs1 / r_rs2;
+                } else{
+                    cout << "Can't divide by zero" << endl;
+                    return;
+                }
+            }
     
             id_ex.pop();
             ex_mem.push({opcode, rd, result});
@@ -385,7 +391,6 @@ class DisableCores{
                     rs1 = stoi(RS1.substr(1));
                     rs2 = stoi(RS2.substr(1));
         
-                    unique_lock<mutex> lock_registers(m_registers);
                     r_rs1 = registers[rs1];
                     r_rs2 = registers[rs2];
                 }
@@ -542,7 +547,7 @@ class DisableSimulator{
     public:
 
     vector<int> memory;
-    int clock;
+    float clock;
     vector<DisableCores> cores;
     vector<string> program;
 
@@ -552,7 +557,6 @@ class DisableSimulator{
 
     DisableSimulator(){
         memory.resize(4096 / 4);
-        clock = 0;
         cores.emplace_back(0);
         cores.emplace_back(1);
         cores.emplace_back(2);
@@ -607,7 +611,7 @@ class DisableSimulator{
                     if(cores[i].stall){
                         cores[i].stallDuration--;
                         if(cores[i].stallDuration > 0){
-                            _sleep(10);
+                            _sleep(clock);
                             continue;
                         }
                         cores[i].stall = false;
@@ -618,7 +622,7 @@ class DisableSimulator{
                     if(cores[i].branchStall){
                         cores[i].branchDuration--;
                         if(cores[i].branchDuration > 0){
-                            _sleep(10);
+                            _sleep(clock);
                             continue;
                         }
                         cores[i].branchStall = false;
@@ -628,7 +632,7 @@ class DisableSimulator{
                     instructionFetch(program, i, temp);
                     temp++;
                     cores[i].count++;
-                    _sleep(10);
+                    _sleep(clock);
                     cout << "count = " << cores[i].count << endl;
                 }
                 cout << i << " finished" << endl;
@@ -705,7 +709,8 @@ class DisableSimulator{
             cout << "Clock cycles : " << cores[i].cycles << endl;
             cout << "Stalls : " << cores[i].stallCount << endl;
             cout << "Instructions : " << cores[i].instructionsCount << endl;
-            cout << "IPC : " << cores[i].instructionsCount / cores[i].cycles << endl << endl; 
+            float temp = (float)cores[i].instructionsCount / cores[i].cycles;
+            cout << "IPC : " << temp << endl << endl;
         }
 
     }

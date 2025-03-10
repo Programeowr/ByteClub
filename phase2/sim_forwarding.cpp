@@ -16,12 +16,7 @@ class EnableCores{
     queue<tuple<string, int, int>> ex_mem;
     queue<tuple<string, int, int>> mem_wb;
     queue<tuple<string, int>> wb_if;
-
-    vector<pair<string, int>> vecStall; 
     queue<tuple<string, int, int, string>> branch;
-
-    mutex m_if_id, m_id_ex, m_ex_mem, m_mem_wb, m_stall, m_branch_stall, m_registers, m_memory, m_program, m_pc;
-    condition_variable c_if_id, c_id_ex, c_ex_mem, c_mem_wb, c_wb_if, c_stall, c_branch_stall;
 
     bool completed = false;
     bool stall = false;
@@ -110,15 +105,20 @@ class EnableCores{
                     rs1 = stoi(DATA.substr(0, DATA.find('(')));
                     rs2 = stoi(DATA.substr(DATA.find('(') + 2, DATA.find(')') - DATA.find('(') - 2));
 
-                    rs1 = rd;
-
-                    r_rs1 = stoi(DATA.substr(0, DATA.find('(')));
+                    r_rs1 = rs1;
                     r_rs2 = registers[rs2];
+
+                    rs1 = rd;
+                    rs2 = rd;
+
+                    rd = registers[rd];
                 }
         
                 if(opcode == "bne" || opcode == "beq" || opcode == "bge" || opcode == "blt"){
                     string RS1, RS2, Label;
                     ss >> RS1 >> RS2 >> Label;
+
+                    if(RS1 == "cid")    return false;
         
                     rs1 = stoi(RS1.substr(1));
                     rs2 = stoi(RS2.substr(1));
@@ -144,6 +144,14 @@ class EnableCores{
                     auto [opcode_two, rd_two, result_two] = mem_wb.front();
 
                     if((rd_two == rs1 && rd_two == rs2) && opcode_two != "sw"){
+                        if(opcode == "sw"){
+                            id_ex.push({opcode, result_two, r_rs1, r_rs2});
+                            stallDuration = 1;
+                            stallCount += 1;
+                            cout << rd_two << " " << result_two << endl;
+                            return true;
+                        }
+
                         if(opcode == "lw"){
                             id_ex.push({opcode, rd, r_rs1, result_two});
                             stallDuration = 1;
@@ -205,6 +213,14 @@ class EnableCores{
                     if((rd_three == rs1 && rd_three == rs2) && (opcode_three != "sw")){
                         if(opcode_three == "lw"){
                             stallDuration = 2;
+                            stallCount += 1;
+                            cout << rd_three << endl;
+                            return true;
+                        }
+
+                        if(opcode == "sw"){
+                            id_ex.push({opcode, mem_three, r_rs1, r_rs2});
+                            stallDuration = 1;
                             stallCount += 1;
                             cout << rd_three << endl;
                             return true;
@@ -515,7 +531,9 @@ class EnableCores{
                 string RS1, RS2, Label;
                 ss >> RS1 >> RS2 >> Label;
 
-                if(RS1 == "cid" || RS2.size() == 1){
+                if(RS1 == "cid"){
+                    cout << "Here" << endl;
+                    cout << RS2 << endl;
                     coreInstruction = true;
                     r_rs1 = coreID;
                     r_rs2 = stoi(RS2);
@@ -523,7 +541,6 @@ class EnableCores{
                     rs1 = stoi(RS1.substr(1));
                     rs2 = stoi(RS2.substr(1));
         
-                    unique_lock<mutex> lock_registers(m_registers);
                     r_rs1 = registers[rs1];
                     r_rs2 = registers[rs2];
                 }
@@ -680,7 +697,7 @@ class EnableSimulator{
     public:
 
     vector<int> memory;
-    int clock;
+    float clock;
     vector<EnableCores> cores;
     vector<string> program;
 
@@ -690,7 +707,6 @@ class EnableSimulator{
 
     EnableSimulator(){
         memory.resize(4096 / 4);
-        clock = 0;
         cores.emplace_back(0);
         cores.emplace_back(1);
         cores.emplace_back(2);
@@ -750,7 +766,7 @@ class EnableSimulator{
                     if(cores[i].stall){
                         cores[i].stallDuration--;
                         if(cores[i].stallDuration > 0){
-                            _sleep(1);
+                            _sleep(clock);
                             continue;
                         }
                         cores[i].stall = false;
@@ -759,7 +775,7 @@ class EnableSimulator{
                     if(cores[i].branchStall){
                         cores[i].branchDuration--;
                         if(cores[i].branchDuration > 0){
-                            _sleep(1);
+                            _sleep(clock);
                             continue;
                         }
                         cores[i].branchStall = false;
@@ -769,7 +785,7 @@ class EnableSimulator{
                     instructionFetch(program, i, temp);
                     temp++;
                     cores[i].count++;
-                    _sleep(1);
+                    _sleep(clock);
                     cout << "count = " << cores[i].count << endl;
                 }
                 cout << i << " finished" << endl;
@@ -846,7 +862,8 @@ class EnableSimulator{
             cout << "Clock cycles : " << cores[i].cycles << endl;
             cout << "Stalls : " << cores[i].stallCount << endl;
             cout << "Instructions : " << cores[i].instructionsCount << endl;
-            cout << "IPC : " << cores[i].instructionsCount / cores[i].cycles << endl << endl; 
+            float temp = (float)cores[i].instructionsCount / cores[i].cycles;
+            cout << "IPC : " << temp << endl << endl; 
         }
     }
 
