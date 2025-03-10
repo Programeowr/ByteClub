@@ -3,7 +3,7 @@
 #include <ctime>
 using namespace std;
 
-class Cores{
+class EnableCores{
     public:
 
     vector<int> registers;
@@ -39,9 +39,9 @@ class Cores{
     int branchDuration = 0;
     int stallCount = 0;
     int instructionsCount = 0;
-    int cycles = 0;
+    int cycles = -1;
 
-    Cores(int cid){
+    EnableCores(int cid){
         registers.resize(32, 0);
         pc = 0;
         coreID = cid;
@@ -49,13 +49,13 @@ class Cores{
         registers[31] = cid;
     }
 
-    Cores(const Cores&) = delete;
-    Cores& operator=(const Cores&) = delete;
+    EnableCores(const EnableCores&) = delete;
+    EnableCores& operator=(const EnableCores&) = delete;
 
-    Cores(Cores&& other) noexcept
+    EnableCores(EnableCores&& other) noexcept
         : coreID(other.coreID), registers(std::move(other.registers)), pc(other.pc) {}
 
-    Cores& operator=(Cores&& other) noexcept {
+    EnableCores& operator=(EnableCores&& other) noexcept {
         if (this != &other) {
             coreID = other.coreID;
             registers = std::move(other.registers);
@@ -72,15 +72,19 @@ class Cores{
             int rs2 = -1;
             int r_rs1 = -1;
             int r_rs2 = -1;
+            string label;
     
             ss >> opcode;
     
-            if(opcode == "add" || opcode == "sub"){
+            if(opcode == "add" || opcode == "sub" || opcode == "mul" || opcode == "div"){
                     string RD, RS1, RS2;
                     ss >> RD >> RS1 >> RS2;
                     rd = stoi(RD.substr(1));
                     rs1 = stoi(RS1.substr(1));
                     rs2 = stoi(RS2.substr(1));
+
+                    r_rs1 = registers[rs1];
+                    r_rs2 = registers[rs2];
             }
     
                 if(opcode == "lw"){
@@ -90,6 +94,9 @@ class Cores{
                     rd = stoi(RD.substr(1));
                     rs1 = stoi(DATA.substr(0, DATA.find('(')));
                     rs2 = stoi(DATA.substr(DATA.find('(') + 2, DATA.find(')') - DATA.find('(') - 2));
+                    
+                    r_rs1 = rs1;
+                    r_rs2 = registers[rs2];
 
                     rs1 = rs2;
                 }
@@ -103,6 +110,9 @@ class Cores{
                     rs2 = stoi(DATA.substr(DATA.find('(') + 2, DATA.find(')') - DATA.find('(') - 2));
 
                     rs1 = rd;
+
+                    r_rs1 = stoi(DATA.substr(0, DATA.find('(')));
+                    r_rs2 = registers[rs2];
                 }
         
                 if(opcode == "bne" || opcode == "beq" || opcode == "bge" || opcode == "blt"){
@@ -111,44 +121,169 @@ class Cores{
         
                     rs1 = stoi(RS1.substr(1));
                     rs2 = stoi(RS2.substr(1));
+
+                    r_rs1 = registers[rs1];
+                    r_rs2 = registers[rs2];
+                    label = Label;
                 }
 
                 if(opcode == "addi" || opcode == "muli"){
                     string RD, RS, VAL;
                     ss >> RD >> RS >> VAL;
 
+                    rd = stoi(RD.substr(1));
                     rs1 = stoi(RS.substr(1));
                     rs2 = rs1;
-                }
 
-                if(!wb_if.empty()){
-                    auto [opcode_one, rd_one] = wb_if.front();
-                    if((rd_one == rs1 || rd_one == rs2) && opcode_one != "sw"){
-                        stallDuration = 1;
-                        stallCount += 1;
-                        cout << rd_one << endl;
-                        return true;
-                    }
+                    r_rs1 = registers[rs1];
+                    r_rs2 = stoi(VAL);
                 }
 
                 if(!mem_wb.empty()){
                     auto [opcode_two, rd_two, result_two] = mem_wb.front();
-                    if((rd_two == rs1 || rd_two == rs2) && opcode_two != "sw"){
-                        stallDuration = 2;
-                        stallCount += 2;
+
+                    if((rd_two == rs1 && rd_two == rs2) && opcode_two != "sw"){
+                        if(opcode == "lw"){
+                            id_ex.push({opcode, rd, r_rs1, result_two});
+                            stallDuration = 1;
+                            stallCount += 1;
+                            cout << rd_two << " " << result_two << endl;
+                            return true;
+                        }
+
+                        if(opcode == "bne" || opcode == "beq" || opcode == "blt" || opcode == "bge"){
+                            branch.push({opcode, result_two, result_two, label});
+                            branchStall = true;
+                            branchDuration = 2;
+                            stallCount += 2;
+                            cout << rd_two << endl;
+                            return true;
+                        }
+
+                        id_ex.push({opcode, rd, result_two, result_two});
+                        stallDuration = 1;
+                        stallCount += 1;
                         cout << rd_two << endl;
                         return true;
+                    }
+                    
+                    if((rd_two == rs1) && opcode_two != "sw"){
+                        if(opcode == "bne" || opcode == "beq" || opcode == "blt" || opcode == "bge"){
+                            r_rs1 = result_two;
+                            branchStall = true;
+                            branchDuration = 2;
+                            
+                        } else{
+                            id_ex.push({opcode, rd, result_two, r_rs2});
+                            stallDuration = 1;
+                            stallCount += 1;
+                            cout << rd_two << endl;
+                            return true;
+                        }
+
+                        
+                    }
+
+                    if((rd_two == rs2) && opcode_two != "sw"){
+                        if(opcode == "bne" || opcode == "beq" || opcode == "blt" || opcode == "bge"){
+                            r_rs2 = result_two;
+                            branchStall = true;
+                            branchDuration = 2;
+                        } else{
+                            id_ex.push({opcode, rd, r_rs1, result_two});
+                            stallDuration = 1;
+                            stallCount += 1;
+                            cout << rd_two << endl;
+                            return true;
+                        }    
                     }
                 }
 
                 if(!ex_mem.empty()){
                     auto [opcode_three, rd_three, mem_three] = ex_mem.front();
-                    if((rd_three == rs1 || rd_three == rs2) && opcode_three != "sw"){
-                        stallDuration = 3;
-                        stallCount += 3;
+                    if((rd_three == rs1 && rd_three == rs2) && (opcode_three != "sw")){
+                        if(opcode_three == "lw"){
+                            stallDuration = 2;
+                            stallCount += 1;
+                            cout << rd_three << endl;
+                            return true;
+                        }
+
+                        if(opcode == "lw"){
+                            id_ex.push({opcode, rd, r_rs1, mem_three});
+                            stallDuration = 1;
+                            stallCount += 1;
+                            cout << rd_three << endl;
+                            return true;
+                        }
+
+                        if(opcode == "bne" || opcode == "beq" || opcode == "blt" || opcode == "bge"){
+                            branch.push({opcode, mem_three, mem_three, label});
+                            branchStall = true;
+                            branchDuration = 2;
+                            stallCount += 2;
+                            cout << rd_three << endl;
+                            if_id.pop();
+                            return true;
+                        }
+
+                        id_ex.push({opcode, rd, mem_three, mem_three});
+                        stallDuration = 1;
+                        stallCount += 1;
                         cout << rd_three << endl;
                         return true;
                     }
+
+                    if((rd_three == rs1) && (opcode_three != "sw")){
+                        if(opcode_three == "lw"){
+                            stallDuration = 2;
+                            stallCount += 1;
+                            cout << rd_three << endl;
+                            return true;
+                        }
+
+                        if(opcode == "bne" || opcode == "beq" || opcode == "blt" || opcode == "bge"){
+                            r_rs1 = mem_three;
+                            branchStall = true;
+                            branchDuration = 2;
+                        } else{
+                            id_ex.push({opcode, rd, mem_three, r_rs2});
+                            stallDuration = 1;
+                            stallCount += 1;
+                            cout << rd_three << endl;
+                            return true;
+                        }
+
+                        
+                    }
+
+                    if((rd_three == rs2) && (opcode_three != "sw")){
+                        if(opcode_three == "lw"){
+                            stallDuration = 2;
+                            stallCount += 1;
+                            cout << rd_three << endl;
+                            return true;
+                        }
+                        if(opcode == "bne" || opcode == "beq" || opcode == "blt" || opcode == "bge"){
+                            r_rs2 = mem_three;
+                            branchStall = true;
+                            branchDuration = 2;    
+                        } else{
+                            id_ex.push({opcode, rd, r_rs1, mem_three});
+                            stallDuration = 1;
+                            stallCount += 1;
+                            cout << rd_three << endl;
+                            return true;
+                        }    
+                    }    
+                }
+
+                if(branchStall){
+                    branch.push({opcode, r_rs1, r_rs2, label});
+                    cout << r_rs1 << " " << r_rs2 << endl;
+                    stallCount += 2;
+                    if_id.pop();
+                    return true;
                 }
 
                 return false;
@@ -172,6 +307,7 @@ class Cores{
                 registers[rd] = value;
             }
             wb_if.push({opcode, rd});
+            cout << "Register = " << registers[12] << endl;
     }
 
     void memoryStage(vector<int>& memory){
@@ -334,13 +470,15 @@ class Cores{
 
         if(if_id.empty())   return;
             string instruction = if_id.front();
-            if_id.pop();
+            
 
             if(checkStall(instruction)){
                 cout << "Stall" << endl;
                 stall = true;
                 return;
             }
+
+            if_id.pop();
     
             istringstream ss(instruction);
             string opcode;
@@ -522,18 +660,19 @@ class Cores{
     }
 };
 
-class Simulator{
+class EnableSimulator{
     public:
 
     vector<int> memory;
     int clock;
-    vector<Cores> cores;
+    vector<EnableCores> cores;
     vector<string> program;
 
     bool completed = false;
     unordered_map<string, int> labels;
+    unordered_map<string, int> latency;
 
-    Simulator(){
+    EnableSimulator(){
         memory.resize(4096 / 4);
         clock = 0;
         cores.emplace_back(0);
@@ -553,16 +692,22 @@ class Simulator{
         if(index > program.size()){
             return;
         }
+        
         if(index == program.size()){
             cores[cid].fetchCompleted = true;
             return;
         }
 
         cout << "IF" << endl;
+        cores[cid].instructionsCount++;
         if(program[index].find(' ') == string::npos){
             cout << "label found" << endl;
             return;
         }
+        while(!cores[cid].if_id.empty()){
+            cores[cid].if_id.pop();
+        }
+
         cores[cid].if_id.push(program[index]);
 
         return;    
@@ -575,6 +720,7 @@ class Simulator{
                 cores[i].count = index;
                 cores[i].clearEverything();
                 while(!cores[i].writeCompleted){
+                    cores[i].cycles++;
                     cores[i].writeBack(memory);
                     cores[i].memoryStage(memory);
                     cores[i].execute(program, labels);
@@ -583,18 +729,16 @@ class Simulator{
                     if(cores[i].stall){
                         cores[i].stallDuration--;
                         if(cores[i].stallDuration > 0){
-                            _sleep(10);
+                            _sleep(1);
                             continue;
                         }
                         cores[i].stall = false;
-                        temp--;
-                        cores[i].count--;
                     }
 
                     if(cores[i].branchStall){
                         cores[i].branchDuration--;
                         if(cores[i].branchDuration > 0){
-                            _sleep(10);
+                            _sleep(1);
                             continue;
                         }
                         cores[i].branchStall = false;
@@ -604,7 +748,7 @@ class Simulator{
                     instructionFetch(program, i, temp);
                     temp++;
                     cores[i].count++;
-                    _sleep(10);
+                    _sleep(1);
                     cout << "count = " << cores[i].count << endl;
                 }
                 cout << i << " finished" << endl;
@@ -691,33 +835,3 @@ class Simulator{
     }
 
 };
-
-int main(){
-
-    Simulator sim;
-
-    ifstream file("BubbleSort.txt"); // Open the file
-    vector<string> lines;
-    string line;
-
-    if(file.is_open()){
-        cout << "File opened" << endl; // Check if the file opened successfully
-        while(getline(file, line)){
-            lines.push_back(line);
-        }
-        file.close(); // Close the file
-    } else{
-        cerr << "Error: Could not open the file!" << endl;
-    }
-
-    sim.program = lines;
-    
-    for(int i = 0; i < sim.program.size(); i++){
-        if(sim.program[i].find(' ') == string::npos){
-            sim.labels[sim.program[i]] = i;
-        }
-    }
-
-    cout << endl;
-    sim.run();
-}

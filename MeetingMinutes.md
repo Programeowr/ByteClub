@@ -1,3 +1,56 @@
+Date: 10-Mar-2025
+
+Members: V Sai Akhil, E Rishikesh Reddy 
+
+Decisions:
+- Implemented Data Forwarding 
+
+Date: 9-Mar-2025
+
+Members: V Sai Akhil, E Rishikesh Reddy 
+
+Decisions:
+- Decided to scrap the experiment and start from the beginning.
+- Started implementing without the use of threads
+- Implemented pipelines
+- Implemented basic instructions 
+- Implemented Stalls
+- Implemented branch instructions 
+
+Date : 8-Mar-2025
+
+Members: V Sai Akhil, E Rishikesh Reddy 
+
+Decisions:
+- Tried solving the problems arose due to the usage of threads
+- Couldn't solve them since new problems arose after one another
+
+Date: 6-Mar-2025
+
+Members: V Sai Akhil, E Rishikesh Reddy 
+
+Decisions:
+- Implemented Stalls
+- Implemented branch instructions 
+- Problems arose due to the unpredictability of threads
+
+Date: 4-Mar-2025
+
+Members: V Sai Akhil, E Rishikesh Reddy 
+
+Decisions: 
+- Learned threads
+- Implemented pipelines using threads in Sample.cpp
+- Implemented basic instructions 
+
+Date: 2-Mar-2025
+
+Members: V Sai Akhil, E Rishikesh Reddy 
+
+Decisions: 
+- Decided to use threads to simulate the pipelining.
+- Decided to copy the project and make a new file and experiment in it. (Sample.cpp)
+
 Date: 19-Feb-2025  
 
 Members: V Sai Akhil, E Rishikesh Reddy  

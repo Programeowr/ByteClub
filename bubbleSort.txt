@@ -1,26 +1,31 @@
 .data
-base: .word 0x10 0x11 0x09 0x08 0x12 0x07 0x13 0x15 0x05 0x10
+base: .word 0x10 0x11 0x09 
 .text
-la x20 base
-li x10 -1
-li x11 9
-outerLoop:
+addi x20 x20 0
+addi x10 x10 -1
+addi x11 x11 2
+addi x4 x0 4
+outerLoop
 addi x10 x10 1
 beq x10 x11 exit
-li x12 0
+addi x12 x0 0
 sub x13 x11 x10
-innerLoop:
+innerLoop
 beq x12 x13 outerLoop
-muli x15 x12 4
+mul x15 x12 x4
 add x30 x20 x15
 lw x25 0(x30)
 lw x26 4(x30)
 bge x25 x26 swap
 addi x12 x12 1
 j innerLoop
-swap:
+swap
 addi x12 x12 1
 sw x25 4(x30)
 sw x26 0(x30)
 j innerLoop
 exit
+addi x1 x1 1
+addi x2 x2 2
+addi x3 x3 3
+addi x4 x4 4
