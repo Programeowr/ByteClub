@@ -1,6 +1,6 @@
 ## Getting Started
 - Clone the repository
-- Open phase2 folder
+- Open phase1 folder
 - Open simCoa.cpp
 - Run "g++ simCoa.cpp -o simCoa" in terminal
 - Run "./simCoa" in terminal
