@@ -7,10 +7,24 @@ using namespace std;
 int main(){
     char enable;
 
+    int add, sub, mul, div;
     cout << "Enable Forwarding? y (or) n" << endl;
     cin >> enable;
 
-    ifstream file("bubbleSort.txt"); // Open the filey
+    cout << "Provide the latency for the below arithmetic instructions " << endl;
+    cout << "add and addi : " << endl;
+    cin >> add;
+
+    cout << "sub : " << endl;
+    cin >> sub;
+
+    cout << "mul and muli : " << endl;
+    cin >> mul;
+
+    cout << "div : " << endl;
+    cin >> div;
+
+    ifstream file("Check.txt"); // Open the file
     vector<string> lines;
     string line;
 
@@ -34,8 +48,16 @@ int main(){
             }
         }
 
+        sim.latency["add"] = add;
+        sim.latency["addi"] = add;
+        sim.latency["sub"] = sub;
+        sim.latency["mul"] = mul;
+        sim.latency["muli"] = mul;
+        sim.latency["div"] = div;
+
         cout << endl;
         sim.run();
+
     }
     
     if(enable == 'y'){
@@ -47,6 +69,13 @@ int main(){
                 sim.labels[sim.program[i]] = i;
             }
         }
+
+        sim.latency["add"] = add;
+        sim.latency["addi"] = add;
+        sim.latency["sub"] = sub;
+        sim.latency["mul"] = mul;
+        sim.latency["muli"] = mul;
+        sim.latency["div"] = div;
 
         cout << endl;
         sim.run();

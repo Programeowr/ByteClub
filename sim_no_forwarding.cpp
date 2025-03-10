@@ -17,11 +17,7 @@ class DisableCores{
     queue<tuple<string, int, int>> mem_wb;
     queue<tuple<string, int>> wb_if;
 
-    vector<pair<string, int>> vecStall; 
     queue<tuple<string, int, int, string>> branch;
-
-    mutex m_if_id, m_id_ex, m_ex_mem, m_mem_wb, m_stall, m_branch_stall, m_registers, m_memory, m_program, m_pc;
-    condition_variable c_if_id, c_id_ex, c_ex_mem, c_mem_wb, c_wb_if, c_stall, c_branch_stall;
 
     bool completed = false;
     bool stall = false;
@@ -35,11 +31,13 @@ class DisableCores{
     bool writeCompleted = false;
 
     int count = 0;
+    int latencyStall = 0;
+    int latencyDuration = 0;
     int stallDuration = 0;
     int branchDuration = 0;
     int stallCount = 0;
     int instructionsCount = 0;
-    int cycles = 0;
+    int cycles = -1;
 
     DisableCores(int cid){
         registers.resize(32, 0);
@@ -75,7 +73,7 @@ class DisableCores{
     
             ss >> opcode;
     
-            if(opcode == "add" || opcode == "sub"){
+            if(opcode == "add" || opcode == "sub" || opcode == "mul" || opcode == "div"){
                     string RD, RS1, RS2;
                     ss >> RD >> RS1 >> RS2;
                     rd = stoi(RD.substr(1));
@@ -194,7 +192,8 @@ class DisableCores{
             mem_wb.push({opcode, rd, mem});
     }
 
-    void execute(vector<string>& program, unordered_map<string,int>& labels){
+    void execute(vector<string>& program, unordered_map<string,int>& labels, unordered_map<string,int>& latency){
+
         if(decodeCompleted){
             executeCompleted = true;
         }
@@ -296,10 +295,35 @@ class DisableCores{
             
     
             auto [opcode, rd, r_rs1, r_rs2] = id_ex.front();
-            id_ex.pop();
+            
             cout << "EX (" << opcode << ")" << endl;
             
             int result;
+
+            if(opcode == "la" || opcode == "li"){
+                result = r_rs1;
+            }
+
+            else if(opcode == "lw"){
+                result = r_rs1 + r_rs2;
+            }
+    
+            else if(opcode == "sw"){
+                result = r_rs1 + r_rs2;
+            }
+
+            if(latencyStall == 0){
+                latencyStall = latency[opcode];
+            }
+            
+            if(latencyStall != 1){
+                latencyStall--;
+                return;
+            }
+
+            cout << "Latency = 0" << endl;
+            latencyStall = 0;
+
             if(opcode == "add" || opcode == "addi"){
                 result = r_rs1 + r_rs2;
             }
@@ -311,19 +335,8 @@ class DisableCores{
             else if(opcode == "mul" || opcode == "muli"){
                 result = r_rs1 * r_rs2;
             }
-    
-            else if(opcode == "lw"){
-                result = r_rs1 + r_rs2;
-            }
-    
-            else if(opcode == "sw"){
-                result = r_rs1 + r_rs2;
-            }
-
-            else if(opcode == "la" || opcode == "li"){
-                result = r_rs1;
-            }
-    
+            
+            id_ex.pop();
             ex_mem.push({opcode, rd, result});
     }
 
@@ -369,7 +382,6 @@ class DisableCores{
                     rs1 = stoi(RS1.substr(1));
                     rs2 = stoi(RS2.substr(1));
         
-                    unique_lock<mutex> lock_registers(m_registers);
                     r_rs1 = registers[rs1];
                     r_rs2 = registers[rs2];
                 }
@@ -532,6 +544,7 @@ class DisableSimulator{
 
     bool completed = false;
     unordered_map<string, int> labels;
+    unordered_map<string, int> latency;
 
     DisableSimulator(){
         memory.resize(4096 / 4);
@@ -559,6 +572,7 @@ class DisableSimulator{
         }
 
         cout << "IF" << endl;
+        cores[cid].instructionsCount++;
         if(program[index].find(' ') == string::npos){
             cout << "label found" << endl;
             return;
@@ -575,9 +589,15 @@ class DisableSimulator{
                 cores[i].count = index;
                 cores[i].clearEverything();
                 while(!cores[i].writeCompleted){
+                    cores[i].cycles++;
                     cores[i].writeBack(memory);
                     cores[i].memoryStage(memory);
-                    cores[i].execute(program, labels);
+                    cores[i].execute(program, labels, latency);
+
+                    if(cores[i].latencyStall > 0){
+                        continue;
+                    }
+
                     cores[i].instructionDecode();
 
                     if(cores[i].stall){
@@ -675,7 +695,15 @@ class DisableSimulator{
         }
 
         printMemory();
-        cout << "Clock cycles : " << clock << endl;    
+
+        for(int i = 0; i < 4; i++){
+            cout << "Core " << i << endl;
+            cout << "Clock cycles : " << cores[i].cycles << endl;
+            cout << "Stalls : " << cores[i].stallCount << endl;
+            cout << "Instructions : " << cores[i].instructionsCount << endl;
+            cout << "IPC : " << cores[i].instructionsCount / cores[i].cycles << endl << endl; 
+        }
+            
     }
 
     void printMemory(){

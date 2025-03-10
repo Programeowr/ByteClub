@@ -39,7 +39,7 @@ class EnableCores{
     int branchDuration = 0;
     int stallCount = 0;
     int instructionsCount = 0;
-    int cycles = 0;
+    int cycles = -1;
 
     EnableCores(int cid){
         registers.resize(32, 0);
@@ -670,6 +670,7 @@ class EnableSimulator{
 
     bool completed = false;
     unordered_map<string, int> labels;
+    unordered_map<string, int> latency;
 
     EnableSimulator(){
         memory.resize(4096 / 4);
@@ -698,6 +699,7 @@ class EnableSimulator{
         }
 
         cout << "IF" << endl;
+        cores[cid].instructionsCount++;
         if(program[index].find(' ') == string::npos){
             cout << "label found" << endl;
             return;
@@ -705,6 +707,7 @@ class EnableSimulator{
         while(!cores[cid].if_id.empty()){
             cores[cid].if_id.pop();
         }
+
         cores[cid].if_id.push(program[index]);
 
         return;    
@@ -717,6 +720,7 @@ class EnableSimulator{
                 cores[i].count = index;
                 cores[i].clearEverything();
                 while(!cores[i].writeCompleted){
+                    cores[i].cycles++;
                     cores[i].writeBack(memory);
                     cores[i].memoryStage(memory);
                     cores[i].execute(program, labels);
