@@ -1,6 +1,6 @@
 ## Getting Started
 - Clone the repository
-- Open phase1 folder
+- Open phase2 folder
 - Open Main.cpp
 - Run "g++ Main.cpp -o Main" in terminal
 - Run "./Main" in terminal
