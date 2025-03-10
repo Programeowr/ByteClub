@@ -35,6 +35,7 @@ class EnableCores{
     bool writeCompleted = false;
 
     int count = 0;
+    int latencyStall = 0;
     int stallDuration = 0;
     int branchDuration = 0;
     int stallCount = 0;
@@ -330,7 +331,7 @@ class EnableCores{
             mem_wb.push({opcode, rd, mem});
     }
 
-    void execute(vector<string>& program, unordered_map<string,int>& labels){
+    void execute(vector<string>& program, unordered_map<string,int>& labels, unordered_map<string,int>& latency){
         if(decodeCompleted){
             executeCompleted = true;
         }
@@ -432,10 +433,36 @@ class EnableCores{
             
     
             auto [opcode, rd, r_rs1, r_rs2] = id_ex.front();
-            id_ex.pop();
+            
             cout << "EX (" << opcode << ")" << endl;
             
             int result;
+
+            if(opcode == "lw"){
+                result = r_rs1 + r_rs2;
+            }
+    
+            else if(opcode == "sw"){
+                result = r_rs1 + r_rs2;
+            }
+
+            else if(opcode == "la" || opcode == "li"){
+                result = r_rs1;
+            }
+
+            if(latencyStall == 0){
+                latencyStall = latency[opcode];
+            }
+            
+            if(latencyStall > 1){
+                latencyStall--;
+                cout << "Latencyyy = " << latencyStall << endl;
+                return;
+            }
+
+            cout << "Latency = 0" << endl;
+            latencyStall = 0;
+
             if(opcode == "add" || opcode == "addi"){
                 result = r_rs1 + r_rs2;
             }
@@ -448,18 +475,7 @@ class EnableCores{
                 result = r_rs1 * r_rs2;
             }
     
-            else if(opcode == "lw"){
-                result = r_rs1 + r_rs2;
-            }
-    
-            else if(opcode == "sw"){
-                result = r_rs1 + r_rs2;
-            }
-
-            else if(opcode == "la" || opcode == "li"){
-                result = r_rs1;
-            }
-    
+            id_ex.pop();
             ex_mem.push({opcode, rd, result});
     }
 
@@ -723,7 +739,12 @@ class EnableSimulator{
                     cores[i].cycles++;
                     cores[i].writeBack(memory);
                     cores[i].memoryStage(memory);
-                    cores[i].execute(program, labels);
+                    cores[i].execute(program, labels, latency);
+
+                    if(cores[i].latencyStall > 0){
+                        continue;
+                    }
+
                     cores[i].instructionDecode();
 
                     if(cores[i].stall){
@@ -819,7 +840,14 @@ class EnableSimulator{
         }
 
         printMemory();
-        cout << "Clock cycles : " << clock << endl;    
+        
+        for(int i = 0; i < 4; i++){
+            cout << "Core " << i << endl;
+            cout << "Clock cycles : " << cores[i].cycles << endl;
+            cout << "Stalls : " << cores[i].stallCount << endl;
+            cout << "Instructions : " << cores[i].instructionsCount << endl;
+            cout << "IPC : " << cores[i].instructionsCount / cores[i].cycles << endl << endl; 
+        }
     }
 
     void printMemory(){

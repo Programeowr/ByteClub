@@ -24,7 +24,7 @@ int main(){
     cout << "div : " << endl;
     cin >> div;
 
-    ifstream file("Check.txt"); // Open the file
+    ifstream file("bubbleSort.txt"); // Open the file
     vector<string> lines;
     string line;
 
