@@ -78,7 +78,7 @@ int main(){
     int cacheOneLatency = 1, cacheTwoLatency = 5, memoryLatency = 100;
     
     // Parse configuration file
-    map<string, string> config = parseConfigFile("config.txt");
+    map<string, string> config = parseConfigFile("config3.txt");
     
     // Get values from config
     enable = getConfigValue(config, "enable", enable);
@@ -98,7 +98,7 @@ int main(){
     memoryLatency = getConfigValue(config, "memoryLatency", memoryLatency);
     replacement = getConfigValue(config, "replacement", replacement);
 
-    ifstream file("TestCase1.txt"); // Open the file
+    ifstream file("TestCase4.txt"); // Open the file
     vector<string> lines;
     string line;
 

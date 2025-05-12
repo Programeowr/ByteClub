@@ -1,0 +1,16 @@
+enable = y
+add = 2
+sub = 2
+mul = 2
+div = 2
+cacheOneSize = 400
+instructionCacheSize = 400
+cacheTwoSize = 800
+spmSize = 400
+associativityOne = 1
+associativityTwo = 1
+blockSize = 40
+cacheOneLatency = 2
+cacheTwoLatency = 5
+memoryLatency = 50
+replacement = l

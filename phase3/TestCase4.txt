@@ -68,7 +68,7 @@ addi x13 x13 1
 j outerLoop
 doneOuter
 sync cores
-bne cid 1 new
+bne cid 0 new
 addi x17 x0 50
 evict 0 50
 getLoop
@@ -138,7 +138,7 @@ addi x13 x13 1
 j outerLoopSecond
 doneOuterSecond
 sync cores
-bne cid 1 exit
+bne cid 0 exit
 lw x21 0(x5)
 lw x22 0(x6)
 lw x23 0(x7)
