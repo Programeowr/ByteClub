@@ -231,3 +231,6 @@ L2 Cache Misses = 5
 - After observing the values, we can conclude that this is obviously slower than the above case where the size is same as the number of elements to be accessed
 - The execution is much more slower than expected because the simulator has a special instruction "get", which brings the data, one element by one element, from the memory. This can be speeded up since the bandwidth is usually larger than just carrying one word a time
 - This is still faster than Case 1 where 100 elements are accessed using cache
+
+### Note
+All these simulation is done when data forwarding is enabled. If you want to disable it, change the enabled configuraion in config files from "enable = y" to "enable = n"
