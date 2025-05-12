@@ -70,3 +70,10 @@ Three main important parts of caches:
 ## Sync Instruction
 - This instruction is used to stall the cores, which have finished executing, to wait for the cores which haven't executed untill the particular point.
 - When a core reaches the sync instruction, it will send a signal to system. This core is now stalled. If all the four cores have sent the signal to the system, it will now remove the stalls.
+
+## Special Instructions Added
+- lw_spm : Same as lw, but access the elements in SPM
+- sw_spm : Same as sw, but access the elements in SPM
+- evict : Evicts the data in SPM from a provided index to another provided index
+- get : Loads the data from memory using the address present in the provided register
+- .spm : Initializes the SPM with the provided indices of the memory variables

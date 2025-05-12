@@ -33,4 +33,3 @@
 ## Problems Faced
 - Storing instructions in Instruction Cache was difficult to implement since it was not possible to have int data type (for tag) and string data type (for instructions) in the same vector in cpp.
 
-
