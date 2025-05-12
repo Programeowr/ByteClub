@@ -98,7 +98,7 @@ int main(){
     memoryLatency = getConfigValue(config, "memoryLatency", memoryLatency);
     replacement = getConfigValue(config, "replacement", replacement);
 
-    ifstream file("ArrayAddition4.txt"); // Open the file
+    ifstream file("TestCase1.txt"); // Open the file
     vector<string> lines;
     string line;
 

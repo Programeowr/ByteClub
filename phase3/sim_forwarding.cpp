@@ -301,13 +301,10 @@ class EnableCores{
             scratchPadMem.erase(scratchPadMem.begin() + rd, scratchPadMem.begin() + result);
         } else {
             cacheStall = memoryLatency;
-            for(int i = 0; i < rd; i++){
-                if(scratchPadMem.size() < spmSize){
-                    scratchPadMem.push_back(memory[result]);
-                    result++;
-                }
-                
-            }
+            int address = result / 4;
+            cout << "Here" << endl;
+            scratchPadMem.push_back(memory[address]);
+            
         }
         
     }
@@ -994,12 +991,15 @@ class EnableCores{
             }
 
             else if(opcode == "get"){
-                string LABEL, NUM1, NUM2;
-                ss >> LABEL >> NUM1 >> NUM2;
+                string DATA;
+                ss >> DATA;
 
-                rd = stoi(NUM2);
-                r_rs1 = mp[LABEL].first;
-                r_rs2 = stoi(NUM1);
+                rs1 = stoi(DATA.substr(0, DATA.find('(')));
+                rs2 = stoi(DATA.substr(DATA.find('(') + 2, DATA.find(')') - DATA.find('(') - 2));
+                rd = rs1;
+
+                r_rs1 = rs1;
+                r_rs2 = registers[rs2];
             }
             
             else {
@@ -1072,7 +1072,7 @@ class EnableSimulator{
     std::mutex output_mutex;
 
     EnableSimulator(){
-        memory.resize(4096 / 4);
+        memory.resize(40960 / 4);
         
         cores.emplace_back(0);
         cores.emplace_back(1);
@@ -1285,13 +1285,12 @@ class EnableSimulator{
 
                 if(variable == "spm"){
                     string base = words[2];
-                    int num = stoi(words[3]);
                     pair<int,int> p = cores[0].mp[base];
                     int value = p.first;
 
-                    for(int j = 0; j < num && value < p.second; j++){
-                        scratchPadMem[sIndex] = memory[value];
-                        value++;
+                    for(int j = 3; j < words.size() && sIndex < spmSize; j++){
+                        int val = stoi(words[j]);
+                        scratchPadMem[sIndex] = memory[p.first + val];
                         sIndex++;
                     }
 
@@ -1595,7 +1594,7 @@ class EnableSimulator{
 
     void printMemory(){
         cout << "Memory : ";
-        for(int i = 0; i < 1024; i++){
+        for(int i = 0; i < 10240; i++){
             if(i % 5 == 0)  cout << endl;
             cout << "Address " << 4*i << " : " << memory[i] << " | ";
             

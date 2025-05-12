@@ -950,7 +950,7 @@ class DisableSimulator{
     int instructionCacheSize;
 
     DisableSimulator(){
-        memory.resize(4096 / 4);
+        memory.resize(40960 / 4);
         cores.emplace_back(0);
         cores.emplace_back(1);
         cores.emplace_back(2);
