@@ -21,5 +21,11 @@ Our project is based on simulator which contains four processors. It simulates a
 ## Phase 3
 [PhaseThree.md](PhaseThree.md)
 
+## Architecture
+[Acrchitecure.md](Architecture.md)
+
+## Test Cases
+[TestCases.md](TestCases.md)
+
 ## Meeting Minutes
 Refer to [MeetingMinutes.md](MeetingMinutes.md) for all the minutes of the meeting for each meeting held.

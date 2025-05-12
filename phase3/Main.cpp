@@ -78,7 +78,7 @@ int main(){
     int cacheOneLatency = 1, cacheTwoLatency = 5, memoryLatency = 100;
     
     // Parse configuration file
-    map<string, string> config = parseConfigFile("config3.txt");
+    map<string, string> config = parseConfigFile("config1.txt");
     
     // Get values from config
     enable = getConfigValue(config, "enable", enable);
