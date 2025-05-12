@@ -18,7 +18,8 @@ Our project is based on simulator which contains four processors. It simulates a
 ## Phase 2
 [PhaseTwo.md](PhaseTwo.md)
 
-
+## Phase 3
+[PhaseThree.md](PhaseThree.md)
 
 ## Meeting Minutes
 Refer to [MeetingMinutes.md](MeetingMinutes.md) for all the minutes of the meeting for each meeting held.
