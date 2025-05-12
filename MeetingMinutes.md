@@ -1,3 +1,57 @@
+Date: 12-May-2025
+
+Members: V Sai Akhil, E Rishikesh Reddy
+
+Decisions:
+- Unfortunately again, got to know the test cases weren't just array sum problems, but strided array sum
+- Rewritten the assembly codes again
+- Ran and debugged the codes
+- Written Documentation in the read me files
+- FINISHED THE PROJECT
+
+Date: 11-May-2025
+
+Members: V Sai Akhil, E Rishikesh Reddy
+
+Decisions:
+- Read and understood the test cases
+- Written assembly code for the test cases
+- Ran and debugged the codes
+
+Date: 10-May-2025
+
+Members: V Sai Akhil, E Rishikesh Reddy
+
+Decisions:
+- Designed the architecture for SPM
+- Implemeted SPM
+
+Date: 9-May-2025
+
+Members: V Sai Akhil, E Rishikesh Reddy
+
+Decisions:
+- Updated the simulator from "running one core at a time" to "running all cores at a time"
+- Implemented sync instruction
+
+Date: 8-May-2025
+
+Members: V Sai Akhil, E Rishikesh Reddy
+
+Decisions:
+- Finished Implementing Caches
+- Unfortunately, we got to know there are two levels of caches
+- Reimplemented the caches with two level hierarchy
+
+Date: 25-Apr-2025
+
+Members: V Sai Akhil, E Rishikesh Reddy
+
+Decisions:
+- Designed the architecture for caches
+- Started implementing caches
+- Decided on Akhil working on sim_forwarding.cpp file and Rishikesh on sim_no_forwarding.cpp file
+
 Date: 10-Mar-2025
 
 Members: V Sai Akhil, E Rishikesh Reddy 
