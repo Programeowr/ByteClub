@@ -69,7 +69,7 @@ char getConfigValue<char>(const map<string, string>& config, const string& key, 
  
 
 int main(){
-    char enable = 'Y';
+    char enable = 'y';
     char replacement = 'l';
     int add = 1, sub = 1, mul = 2, div = 10;
     int cacheOneSize = 1024, cacheTwoSize = 4096, blockSize = 16;

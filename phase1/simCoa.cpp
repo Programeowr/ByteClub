@@ -155,7 +155,7 @@ class Cores{
             else if(opcode == "bne"){
                 int rs1 = stoi(words[1].substr(1));
                 int rs2 = stoi(words[2].substr(1));
-                string label = words[3] + ":";
+                string label = words[3];
 
                 if(registers[rs1] != registers[rs2]){
                     int temp = find(program.begin(), program.end(), label) - program.begin();
@@ -167,7 +167,7 @@ class Cores{
             else if(opcode == "beq"){
                 int rs1 = stoi(words[1].substr(1));
                 int rs2 = stoi(words[2].substr(1));
-                string label = words[3] + ":";
+                string label = words[3];
 
                 if(registers[rs1] == registers[rs2]){
                     int temp = find(program.begin(), program.end(), label) - program.begin();
@@ -179,7 +179,7 @@ class Cores{
             else if(opcode == "bge"){
                 int rs1 = stoi(words[1].substr(1));
                 int rs2 = stoi(words[2].substr(1));
-                string label = words[3] + ":";
+                string label = words[3];
 
                 if(registers[rs1] >= registers[rs2]){
                     int temp = find(program.begin(), program.end(), label) - program.begin();
@@ -191,7 +191,7 @@ class Cores{
             else if(opcode == "ble"){
                 int rs1 = stoi(words[1].substr(1));
                 int rs2 = stoi(words[2].substr(1));
-                string label = words[3] + ":";
+                string label = words[3];
 
                 if(registers[rs1] <= registers[rs2]){
                     int temp = find(program.begin(), program.end(), label) - program.begin();
@@ -202,7 +202,7 @@ class Cores{
 
             else if(opcode == "jal"){
                 int rl = stoi(words[1].substr(1));
-                string label = words[2] + ":";
+                string label = words[2];
                 
                 if(rl == 0){
                     cout << "Error : You can't rewrite x0" << endl;
@@ -233,7 +233,7 @@ class Cores{
             }
 
             else if(opcode == "j"){
-                string label = words[1] + ":";
+                string label = words[1];
 
                 int temp = find(program.begin(), program.end(), label) - program.begin();
                 i = temp;

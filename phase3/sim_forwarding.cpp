@@ -361,7 +361,6 @@ class EnableCores{
                 cacheOne[numOne + j][1] = 0; 
 
                 if(opcode == "sw"){
-                    memStall = 5;
                     cacheOne[numOne + j][offset] = value;       //Write value in cacheOne
                     cacheTwo[num + i][offset] = value;         //Write value in cacheTwo
                     memory[address] = value;                //Write value in memory
@@ -482,7 +481,6 @@ class EnableCores{
                 cacheStall = cacheOneLatency;
 
                 if(opcode == "sw"){
-                    memStall = 5;
                     cacheOne[num + i][offset] = value;         //Write value in cacheOne
                     writeCacheTwo(cacheOne, cacheTwo, value, cacheTwoSize, blockSize, associativityTwo, address);   //Write value in cacheTwo
                     memory[address] = value;                //Write value in memory
